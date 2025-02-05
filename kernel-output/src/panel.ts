@@ -7,7 +7,7 @@ import {
 import {
   OutputArea,
   OutputAreaModel,
-  SimplifiedOutputArea
+  //SimplifiedOutputArea
 } from '@jupyterlab/outputarea';
 
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -22,7 +22,10 @@ import {
 
 import { Message } from '@lumino/messaging';
 
-import { StackedPanel } from '@lumino/widgets';
+import {
+  SplitPanel,
+  //StackedPanel
+} from '@lumino/widgets';
 
 /**
  * The class name added to the example panel.
@@ -32,7 +35,7 @@ const PANEL_CLASS = 'jp-RovaPanel';
 /**
  * A panel with the ability to add other children.
  */
-export class ExamplePanel extends StackedPanel {
+export class ExamplePanel extends SplitPanel {
   constructor(
     manager: ServiceManager.IManager,
     rendermime: IRenderMimeRegistry,
@@ -52,8 +55,15 @@ export class ExamplePanel extends StackedPanel {
       name: 'Kernel Output'
     });
 
+    const model = manager.sessions.running();
+
+    console.log(model);
+    //if (model) {
+    //    manager.sessions.connectTo({ model });
+    //}
+
     this._outputareamodel = new OutputAreaModel();
-    this._outputarea = new SimplifiedOutputArea({
+    this._outputarea = new OutputArea({
       model: this._outputareamodel,
       rendermime: rendermime
     });
@@ -68,6 +78,7 @@ export class ExamplePanel extends StackedPanel {
       .initialize()
       .then(async value => {
         if (value) {
+          console.log(this._sessionContext);
           await this._sessionContextDialogs.selectKernel(this._sessionContext);
         }
       })
@@ -101,7 +112,7 @@ export class ExamplePanel extends StackedPanel {
   }
 
   private _sessionContext: SessionContext;
-  private _outputarea: SimplifiedOutputArea;
+  private _outputarea: OutputArea;
   private _outputareamodel: OutputAreaModel;
   private _sessionContextDialogs: SessionContextDialogs;
 
