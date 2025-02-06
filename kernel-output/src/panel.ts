@@ -1,7 +1,7 @@
 import {
   ISessionContext,
   SessionContext,
-  SessionContextDialogs
+  //SessionContextDialogs
 } from '@jupyterlab/apputils';
 
 import {
@@ -12,7 +12,7 @@ import {
 
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
-import { KernelMessage, ServiceManager } from '@jupyterlab/services';
+import { KernelAPI, KernelMessage, ServiceManager } from '@jupyterlab/services';
 
 import {
   ITranslator,
@@ -55,32 +55,21 @@ export class ExamplePanel extends SplitPanel {
       name: 'Kernel Output'
     });
 
-    const model = manager.sessions.running();
-
-    console.log(model);
-    //if (model) {
-    //    manager.sessions.connectTo({ model });
-    //}
-
     this._outputareamodel = new OutputAreaModel();
     this._outputarea = new OutputArea({
       model: this._outputareamodel,
       rendermime: rendermime
     });
 
-    this._sessionContextDialogs = new SessionContextDialogs({
-      translator: translator
-    });
-
     this.addWidget(this._outputarea);
 
     void this._sessionContext
       .initialize()
-      .then(async value => {
-        if (value) {
-          console.log(this._sessionContext);
-          await this._sessionContextDialogs.selectKernel(this._sessionContext);
-        }
+      .then(async () => {
+        const models = await KernelAPI.listRunning();
+        console.log(models);      
+        this._sessionContext.changeKernel(models[0]);
+        console.log(this._sessionContext.kernelDisplayStatus);
       })
       .catch(reason => {
         console.error(
@@ -114,7 +103,6 @@ export class ExamplePanel extends SplitPanel {
   private _sessionContext: SessionContext;
   private _outputarea: OutputArea;
   private _outputareamodel: OutputAreaModel;
-  private _sessionContextDialogs: SessionContextDialogs;
 
   private _translator: ITranslator;
   private _trans: TranslationBundle;
