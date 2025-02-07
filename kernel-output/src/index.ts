@@ -66,7 +66,6 @@ function activate(
    * @returns The panel
    */
   async function createPanel(): Promise<ExamplePanel> {
-    //console.log(manager.kernels.runningCount());
     panel = new ExamplePanel(manager, rendermime, translator);
     shell.add(panel, 'main');
     return panel;
@@ -87,9 +86,14 @@ function activate(
       const code = 'user = input("User?")';
       // Create the panel
       if (!panel) {
-        panel = await createPanel();
-      } 
-      panel.execute(code);
+        createPanel()
+          .then(async (panel) => {
+            await panel.session.ready;
+            panel.execute(code);
+          })
+      } else {
+        panel.execute(code);
+      }
     }
   });
 
