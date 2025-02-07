@@ -66,10 +66,8 @@ export class ExamplePanel extends SplitPanel {
     void this._sessionContext
       .initialize()
       .then(async () => {
-        const models = await KernelAPI.listRunning();
-        console.log(models);      
+        const models = await KernelAPI.listRunning();    
         this._sessionContext.changeKernel(models[0]);
-        console.log(this._sessionContext.kernelDisplayStatus);
       })
       .catch(reason => {
         console.error(
