@@ -5,6 +5,17 @@ import {
 } from '@jupyterlab/apputils';
 
 import {
+  CodeMirrorEditorFactory,
+  EditorLanguageRegistry,
+} from '@jupyterlab/codemirror';
+
+import {
+  Cell,
+  CodeCell,
+  CodeCellModel
+} from '@jupyterlab/cells';
+
+import {
   OutputArea,
   OutputAreaModel,
   //SimplifiedOutputArea
@@ -23,7 +34,7 @@ import {
 import { Message } from '@lumino/messaging';
 
 import {
-  SplitPanel,
+  DockPanel,
   //StackedPanel
 } from '@lumino/widgets';
 
@@ -35,13 +46,29 @@ const PANEL_CLASS = 'jp-RovaPanel';
 /**
  * A panel with the ability to add other children.
  */
-export class ExamplePanel extends SplitPanel {
+export class ExamplePanel extends DockPanel {
   constructor(
     manager: ServiceManager.IManager,
     rendermime: IRenderMimeRegistry,
     translator?: ITranslator
   ) {
     super();
+    this._codeCellModel = new CodeCellModel({contentFactory: CodeCellModel.defaultContentFactory});
+
+    const languages = new EditorLanguageRegistry();
+    const factoryService = new CodeMirrorEditorFactory({
+      languages
+    });
+    const editorFactory = factoryService.newInlineEditor;
+
+
+    this.codeCell = new CodeCell({
+      contentFactory: new Cell.ContentFactory({ editorFactory: editorFactory }),
+      model: this._codeCellModel,
+      rendermime: rendermime,
+    });
+    this.addWidget(this.codeCell);
+
     this._translator = translator || nullTranslator;
     this._trans = this._translator.load('jupyterlab');
     this.addClass(PANEL_CLASS);
@@ -61,7 +88,7 @@ export class ExamplePanel extends SplitPanel {
       rendermime: rendermime
     });
 
-    this.addWidget(this._outputarea);
+    this.addWidget(this._outputarea, { mode: 'split-right', ref: this.codeCell });
 
     void this._sessionContext
       .initialize()
@@ -98,7 +125,10 @@ export class ExamplePanel extends SplitPanel {
     this.dispose();
   }
 
+  codeCell: CodeCell;
+
   private _sessionContext: SessionContext;
+  private _codeCellModel: CodeCellModel;
   private _outputarea: OutputArea;
   private _outputareamodel: OutputAreaModel;
 

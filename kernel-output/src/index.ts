@@ -89,6 +89,7 @@ function activate(
         createPanel()
           .then(async (panel) => {
             await panel.session.ready;
+            console.log(panel.codeCell.model);
             panel.execute(code);
           })
       } else {
