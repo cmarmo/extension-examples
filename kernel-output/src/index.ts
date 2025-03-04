@@ -82,17 +82,16 @@ function activate(
     label: trans.__('Contact Kernel and Execute Code'),
     caption: trans.__('Contact Kernel and Execute Code'),
     execute: async () => {
-      //const code = 'widget';
-      const code = 'user = input("User?")';
       // Create the panel
       if (!panel) {
         createPanel()
           .then(async (panel) => {
             await panel.session.ready;
-            console.log(panel.codeCell.model);
+            const code = panel.codeCell.model.sharedModel.getSource();
             panel.execute(code);
           })
       } else {
+        const code = panel.codeCell.model.sharedModel.getSource();
         panel.execute(code);
       }
     }

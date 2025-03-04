@@ -38,7 +38,42 @@ import {
   //StackedPanel
 } from '@lumino/widgets';
 
+import * as nbformat from '@jupyterlab/nbformat';
+
 /**
+ * Generate a cell object
+ *
+ * @param skeleton Cell description template
+ * @returns A cell
+ */
+export function makeCell(
+  skeleton: Partial<nbformat.ICell>
+): nbformat.ICell {
+  switch (skeleton.cell_type ?? 'code') {
+    case 'code':
+      return {
+        cell_type: 'code',
+        execution_count: null,
+        metadata: {},
+        outputs: [],
+        source: [],
+        ...skeleton
+      };
+    default: {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { execution_count, outputs, ...others } = skeleton;
+      return {
+        cell_type: 'markdown',
+        metadata: {},
+        source: [],
+        ...others
+      };
+    }
+  }
+}
+
+/**
+ * 
  * The class name added to the example panel.
  */
 const PANEL_CLASS = 'jp-RovaPanel';
@@ -53,8 +88,32 @@ export class ExamplePanel extends DockPanel {
     translator?: ITranslator
   ) {
     super();
-    this._codeCellModel = new CodeCellModel({contentFactory: CodeCellModel.defaultContentFactory});
 
+    /*const cell = makeCell({
+      cell_type: 'code',
+      source: 'user = input("User?"); print(user)',
+      outputs: [],
+      execution_count: 0,
+      metadata: {}
+    });*/
+
+    this._codeCellModel = new CodeCellModel({
+      contentFactory: CodeCellModel.defaultContentFactory
+    });
+
+    this._codeCellModel.sharedModel.setSource(
+      'from ipywidgets import IntSlider, Text, HBox\n' +
+      'slider = IntSlider()\n' +
+      'view = Text()\n' +
+      'widget = HBox([slider, view])\n' +
+      'def callback(event):\n' +
+      '    view.value=str(event["new"])\n' +
+      '    slider.observe(callback, names=["value"])\n' +
+      'widget'
+    );
+    this._codeCellModel.isDirty = true;
+  
+    console.log(this._codeCellModel.sharedModel);
     const languages = new EditorLanguageRegistry();
     const factoryService = new CodeMirrorEditorFactory({
       languages
