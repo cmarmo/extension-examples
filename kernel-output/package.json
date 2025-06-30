@@ -53,6 +53,7 @@
         "watch:labextension": "jupyter labextension watch ."
     },
     "dependencies": {
+        "@jupyter-widgets/jupyterlab-manager": "^5.0.13",
         "@jupyterlab/application": "^4.0.0",
         "@jupyterlab/launcher": "^4.0.0",
         "@jupyterlab/outputarea": "^4.0.0",

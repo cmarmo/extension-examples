@@ -86,13 +86,11 @@ function activate(
       if (!panel) {
         createPanel()
           .then(async (panel) => {
-            await panel.session.ready;
-            const code = panel.codeCell.model.sharedModel.getSource();
-            panel.execute(code);
+            await panel.session.ready;           
+            panel.execute();
           })
       } else {
-        const code = panel.codeCell.model.sharedModel.getSource();
-        panel.execute(code);
+        panel.execute();
       }
     }
   });

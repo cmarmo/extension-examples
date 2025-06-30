@@ -31,14 +31,21 @@ import {
   TranslationBundle
 } from '@jupyterlab/translation';
 
+//import { WidgetRenderer } from '@jupyter-widgets/jupyterlab-manager';
 import { Message } from '@lumino/messaging';
 
 import {
   DockPanel,
+  //Widget,
   //StackedPanel
 } from '@lumino/widgets';
 
 import * as nbformat from '@jupyterlab/nbformat';
+
+/**
+ * The mime type for a widget view.
+ */
+export const WIDGET_VIEW_MIMETYPE = 'application/vnd.jupyter.widget-view+json';
 
 /**
  * Generate a cell object
@@ -89,13 +96,18 @@ export class ExamplePanel extends DockPanel {
   ) {
     super();
 
-    /*const cell = makeCell({
-      cell_type: 'code',
-      source: 'user = input("User?"); print(user)',
-      outputs: [],
-      execution_count: 0,
-      metadata: {}
-    });*/
+    //rendermime.setRank(WIDGET_VIEW_MIMETYPE, 0);
+    //rendermime.getFactory(WIDGET_VIEW_MIMETYPE).set({'safe': true });
+    //const createrenderer = rendermime.getFactory(WIDGET_VIEW_MIMETYPE)?.createRenderer;
+    //rendermime.removeMimeType(WIDGET_VIEW_MIMETYPE);
+    /*rendermime.addFactory(
+      {
+        safe: true,
+        mimeTypes: [WIDGET_VIEW_MIMETYPE],
+        createRenderer: createrenderer,
+      },
+      -10
+    );*/
 
     this._codeCellModel = new CodeCellModel({
       contentFactory: CodeCellModel.defaultContentFactory
@@ -112,8 +124,7 @@ export class ExamplePanel extends DockPanel {
       'widget'
     );
     this._codeCellModel.isDirty = true;
-  
-    console.log(this._codeCellModel.sharedModel);
+
     const languages = new EditorLanguageRegistry();
     const factoryService = new CodeMirrorEditorFactory({
       languages
@@ -147,6 +158,12 @@ export class ExamplePanel extends DockPanel {
       rendermime: rendermime
     });
 
+    this._celloutputarea = new OutputArea({
+      model: this._outputareamodel,
+      rendermime: rendermime
+    });
+
+    this.addWidget(this._celloutputarea, { mode: 'merge-bottom', ref: this.codeCell });
     this.addWidget(this._outputarea, { mode: 'split-right', ref: this.codeCell });
 
     void this._sessionContext
@@ -171,7 +188,8 @@ export class ExamplePanel extends DockPanel {
     super.dispose();
   }
 
-  execute(code: string): void {
+  execute(): void {
+    const code = this.codeCell.model.sharedModel.getSource();
     OutputArea.execute(code, this._outputarea, this._sessionContext)
       .then((msg: KernelMessage.IExecuteReplyMsg | undefined) => {
         console.log(msg);
@@ -189,6 +207,7 @@ export class ExamplePanel extends DockPanel {
   private _sessionContext: SessionContext;
   private _codeCellModel: CodeCellModel;
   private _outputarea: OutputArea;
+  private _celloutputarea: OutputArea;
   private _outputareamodel: OutputAreaModel;
 
   private _translator: ITranslator;
