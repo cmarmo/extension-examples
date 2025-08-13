@@ -28,9 +28,14 @@ test('should open a panel connected to a notebook kernel', async ({ page }) => {
 
   // Select Notebook kernel
   const select = page.locator('.jp-Dialog-body').locator('select');
-  const optionLocator = select.locator('option', { hasText: /Untitled.ipynb.*/ });
+  const optionLocator = select.locator('option', {
+    hasText: /Untitled.ipynb.*/
+  });
   const value = await optionLocator.getAttribute('value');
-  await page.locator('.jp-Dialog-body').locator('select').selectOption({ value });
+  await page
+    .locator('.jp-Dialog-body')
+    .locator('select')
+    .selectOption({ value });
 
   await page.getByRole('button', { name: 'Select Kernel' }).click();
 
